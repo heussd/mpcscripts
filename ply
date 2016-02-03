@@ -1,0 +1,66 @@
+#!/bin/bash
+
+if [ $# == 0 ]; then mpc playlist && exit; fi
+
+if [ $1 == '-a' ]; then
+	shift;
+else
+	mpc clear --quiet;
+fi
+
+anyQuery="mpc searchadd";
+fileQuery="mpc searchadd";
+for arg in "$@"
+do
+	anyQuery="$anyQuery any $arg"
+	# For some reason, "any" does not include "filename".
+	fileQuery="$fileQuery filename $arg"
+done
+
+#`sh -c "$anyQuery"`
+`sh -c "$fileQuery"`
+
+mpc shuffle --quiet
+mpc play --quiet
+
+
+
+
+# Old code & deprecated functionality for old mpc versions
+exit
+
+
+if [ $1 == 'm' ]; then
+	shift
+	currentSong=`mpc --format "%file%" | head -n 1`
+	$0 ${currentSong%/*}/ $*
+	exit
+fi
+
+if [ $1 == '-a' ]; then
+	shift;
+else
+	mpc clear --quiet;
+fi
+
+
+cmd="mpc search any $1"
+shift
+
+for i in $*; do
+	cmd=$cmd" | egrep -i "
+	if [ ${i:0:1} == '-' ]; then
+		cmd=$cmd"-v ${i:1:${#i}}";
+	else
+		cmd=$cmd"$i ";
+	fi
+done;
+
+if [[ `sh -c "$cmd"` ]]; then
+	sh -c "$cmd | mpc add --verbose"
+	mpc shuffle --quiet && mpc play --quiet;
+else
+	echo "No results :("
+fi
+exit
+

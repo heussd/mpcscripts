@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [ $# == 0 ]; then
+	search=`mpc --format "%file%" | head -n1`
+	search=${search%/*}
+fi
+
+case $1 in
+	"al")
+	search=`mpc --format "%album%" | head -n1`;;
+	"ar")
+	search=`mpc --format "%artist%" | head -n1`;;
+esac
+
+
+ply $search

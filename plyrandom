@@ -1,0 +1,3 @@
+#!/bin/bash
+
+mpc listall | sort -R | head -n $1 | mpc add

@@ -1,0 +1,4 @@
+#!/bin/bash
+mpc clear
+mpc ls | mpc add
+mpc play

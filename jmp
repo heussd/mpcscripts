@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# Only one parameter?
+if [ $# == 1 ]; then
+	# Is it numeric between 0 - 100?
+	if test $1 -ge 0 -a $1 -le 100 2> /dev/null; then
+		# Jump to $1%
+		mpc seek $1%
+		exit
+	fi
+fi
+
+cmd="mpc playlist"
+
+
+cmd="$cmd -f \" [%position%) %artist% - %title%]\""
+for parameter in $*; do
+	query=$query" | egrep -i $parameter"
+done
+
+case `sh -c "$cmd $query | wc -l"` in
+	*0)
+		# No results, try to find some in the mpd db.
+		case `sh -c "mpc search any $1 $query | wc -l"` in
+			*0)
+				# Again, no results. Give up.
+				echo "No results :("
+				exit;;
+			*1)
+				# Yeah, found sth. :)
+				sh -c "mpc search any $1 $query | mpc add";;
+			*)
+				IFS=$'\n'
+		
+				select i in `sh -c "mpc search any $1 $query"`; do
+					mpc add $i
+					break
+				done;;
+		esac
+
+		# Play last item in current playlist
+		mpc play `mpc playlist | wc -l`
+		
+		exit;;
+	*1)
+		# Exact one result in current playlist
+
+		# Deprecated version:
+		#sh -c "$cmd $query | sed 's/>//g' | mpc play -";;
+
+		# First token in line is playlist number
+		for i in `sh -c "$cmd $query"`; do
+			mpc play $i 
+			break;
+		done
+
+		# Not-yet-perfect version:
+		#sh -c "$cmd $query | cut -c 2-3 | xargs mpc play";;
+		;;
+	*)
+		IFS=$'\n'
+		
+		# Song is in playlist
+		select i in `sh -c "$cmd $query"`; do
+			mpc play ${i%%)*} 
+			exit
+		done;;
+esac
