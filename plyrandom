@@ -1,3 +1,3 @@
-#!/bin/bash
+#!/bin/sh
 
-mpc listall | sort -R | head -n $1 | mpc add
+mpc listall | gsort -R | head -n $1 | mpc add
