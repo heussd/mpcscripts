@@ -1,0 +1,14 @@
+#!/bin/sh
+
+favsfile="/Users/th/Musik/mpfavs"
+
+if [[ $# -eq 0 ]] ; then
+	cmd=`cat $favsfile | xmenu`
+	sh -c "$cmd"
+else
+	position=`mpc | head -n 2 | tail -n 1 | awk -F ' ' '{print $3}' | awk -F '/' '{print $1}'`
+	jmptrgt=`mpc --format "%artist% %title%" | head -n 1 | sed 's/|//g'`
+
+	echo "jmp $jmptrgt && mpc seek $position # $*" >> $favsfile
+fi
+
