@@ -3,5 +3,5 @@
 musicPath=~/Musik
 
 mpc clear
-find ~/Musik -type f -mtime -$* | sed -e "s/\/Users\/th\/Musik\///g" | mpc add
+find ~/Musik -type f ! -iname "*.DS_STORE*" -mtime -$* | sed -e "s/\/Users\/th\/Musik\///g" | mpc add
 mpc play
